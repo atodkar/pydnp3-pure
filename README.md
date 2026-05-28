@@ -17,13 +17,42 @@ Pure Python DNP3 (IEEE 1815 / IEC 62351-5) protocol library supporting both **ma
 ## Installation
 
 ```bash
-pip install -e .
-
-# With development tools
-pip install -e ".[dev]"
+pip install pydnp3
 ```
 
 Requires **Python 3.11+**.
+
+## Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/<your-org>/pydnp3.git
+cd pydnp3
+
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate    # Windows
+
+# Install in editable mode with dev dependencies
+pip install -e ".[dev]"
+```
+
+### Running quality checks locally
+
+```bash
+ruff check .          # Linting
+mypy                  # Type checking
+pytest tests/ -v      # Tests
+python -m build       # Build sdist + wheel
+twine check dist/*    # Validate package metadata
+```
+
+Deactivate the virtual environment when done:
+
+```bash
+deactivate
+```
 
 ## Quick Start
 
@@ -159,32 +188,42 @@ python examples/master_basic.py
 
 ## Versioning and Release
 
-Releases are designed around GitHub Actions and PyPI Trusted Publishing.
+Releases are managed through GitHub Actions with version validation and CI gating.
+
+### Release process
 
 1. Update the version in [pyproject.toml](pyproject.toml).
-2. Ensure CI is green in [.github/workflows/ci.yml](.github/workflows/ci.yml).
-3. Commit and push to main.
-4. Create a GitHub Release with a tag that matches the version (example: v0.1.1).
-5. The publish workflow in [.github/workflows/publish.yml](.github/workflows/publish.yml) builds and uploads artifacts to PyPI.
+2. Commit and push to main. CI runs lint, type check, and tests across Python 3.11/3.12/3.13.
+3. Create a GitHub Release with a tag matching the version (e.g., tag `v0.2.0` for version `0.2.0`).
+   - **Pre-release** (mark as pre-release in GitHub): publishes to [TestPyPI](https://test.pypi.org/p/pydnp3) for validation.
+   - **Full release**: publishes to [PyPI](https://pypi.org/p/pydnp3).
+4. The publish workflow validates that the tag matches `pyproject.toml` version, re-runs all quality checks, builds the package, and uploads.
+
+### Testing a pre-release from TestPyPI
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydnp3
+```
 
 ### Local pre-release check
 
 ```bash
-pip install -e ".[dev]"
+source .venv/bin/activate
 ruff check .
 mypy
 pytest tests/ -v
 python -m build
+twine check dist/*
 ```
 
 ### PyPI Trusted Publisher setup (one-time)
 
-Configure a Trusted Publisher in PyPI with:
+Configure Trusted Publishers in PyPI and TestPyPI with:
 
 - Owner: your GitHub user or organization
 - Repository: this repository name
-- Workflow: publish.yml
-- Environment: pypi
+- Workflow: `publish.yml`
+- Environment: `pypi` (for PyPI) / `testpypi` (for TestPyPI)
 
 ## Design Decisions
 
