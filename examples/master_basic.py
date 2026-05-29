@@ -6,17 +6,16 @@ Connects to an outstation, performs integrity polls, and sends controls.
 import asyncio
 import logging
 
-from pydnp3_pure.app.constants import CommandStatus
 from pydnp3_pure.app.fragment import AppMessage
-from pydnp3_pure.io.tcp_client import TcpClient
-from pydnp3_pure.link.layer import LinkLayer
-from pydnp3_pure.link.frame import LinkFrame
-from pydnp3_pure.transport.layer import TransportLayer
 from pydnp3_pure.app.layer import ApplicationLayer
-from pydnp3_pure.objects.types import CROB, AnalogOutputCommand
+from pydnp3_pure.io.tcp_client import TcpClient
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.link.layer import LinkLayer
 from pydnp3_pure.master.config import MasterConfig
 from pydnp3_pure.master.handler import IMasterHandler
 from pydnp3_pure.master.session import MasterSession
+from pydnp3_pure.objects.types import CROB
+from pydnp3_pure.transport.layer import TransportLayer
 
 logging.basicConfig(level=logging.INFO)
 
@@ -74,7 +73,7 @@ async def main():
 
     # Connect
     await client.open()
-    print(f"Connected to outstation at 127.0.0.1:20000")
+    print("Connected to outstation at 127.0.0.1:20000")
 
     # Perform integrity poll
     print("\nSending integrity poll...")

@@ -2,6 +2,7 @@
 name = "pydnp3-pure"
 version = "0.1.0"
 description = "Pure Python DNP3 protocol library supporting master and outstation roles"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Anand Todkar" }]

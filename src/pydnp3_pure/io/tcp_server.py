@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import ssl
-from typing import Callable
+from collections.abc import Callable
 
 from .channel import IChannel
 
@@ -33,7 +33,7 @@ class TcpServer(IChannel):
         self._writer: asyncio.StreamWriter | None = None
         self._receive_callback: Callable[[bytes], None] | None = None
         self._running = False
-        self._read_task: asyncio.Task | None = None
+        self._read_task: asyncio.Task[None] | None = None
         self._connected_event = asyncio.Event()
 
     @property

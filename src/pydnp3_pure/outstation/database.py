@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import threading
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 from ..app.constants import PointFlags
 from ..objects.types import AnalogPoint, BinaryPoint, CounterPoint
@@ -47,22 +48,30 @@ class PointDatabase:
 
     # --- Initialization ---
 
-    def add_binary_input(self, index: int, value: bool = False, config: PointConfig | None = None) -> None:
+    def add_binary_input(
+        self, index: int, value: bool = False, config: PointConfig | None = None
+    ) -> None:
         with self._lock:
             self._binary_inputs[index] = BinaryPoint(index=index, value=value)
             self._bi_config[index] = config or PointConfig()
 
-    def add_binary_output(self, index: int, value: bool = False, config: PointConfig | None = None) -> None:
+    def add_binary_output(
+        self, index: int, value: bool = False, config: PointConfig | None = None
+    ) -> None:
         with self._lock:
             self._binary_outputs[index] = BinaryPoint(index=index, value=value)
             self._bo_config[index] = config or PointConfig(event_class=2)
 
-    def add_analog_input(self, index: int, value: float = 0.0, config: PointConfig | None = None) -> None:
+    def add_analog_input(
+        self, index: int, value: float = 0.0, config: PointConfig | None = None
+    ) -> None:
         with self._lock:
             self._analog_inputs[index] = AnalogPoint(index=index, value=value)
             self._ai_config[index] = config or PointConfig()
 
-    def add_analog_output(self, index: int, value: float = 0.0, config: PointConfig | None = None) -> None:
+    def add_analog_output(
+        self, index: int, value: float = 0.0, config: PointConfig | None = None
+    ) -> None:
         with self._lock:
             self._analog_outputs[index] = AnalogPoint(index=index, value=value)
 
@@ -74,7 +83,9 @@ class PointDatabase:
 
     # --- Updates (trigger events on change) ---
 
-    def update_binary_input(self, index: int, value: bool, flags: int = int(PointFlags.ONLINE)) -> None:
+    def update_binary_input(
+        self, index: int, value: bool, flags: int = int(PointFlags.ONLINE)
+    ) -> None:
         with self._lock:
             point = self._binary_inputs.get(index)
             if point is None:
@@ -85,7 +96,9 @@ class PointDatabase:
                 if self._on_event:
                     self._on_event(1, index, BinaryPoint(index=index, value=value, flags=flags))
 
-    def update_binary_output(self, index: int, value: bool, flags: int = int(PointFlags.ONLINE)) -> None:
+    def update_binary_output(
+        self, index: int, value: bool, flags: int = int(PointFlags.ONLINE)
+    ) -> None:
         with self._lock:
             point = self._binary_outputs.get(index)
             if point is None:
@@ -93,7 +106,9 @@ class PointDatabase:
             point.value = value
             point.flags = flags
 
-    def update_analog_input(self, index: int, value: float, flags: int = int(PointFlags.ONLINE)) -> None:
+    def update_analog_input(
+        self, index: int, value: float, flags: int = int(PointFlags.ONLINE)
+    ) -> None:
         with self._lock:
             point = self._analog_inputs.get(index)
             if point is None:
@@ -106,7 +121,9 @@ class PointDatabase:
                 if self._on_event:
                     self._on_event(30, index, AnalogPoint(index=index, value=value, flags=flags))
 
-    def update_analog_output(self, index: int, value: float, flags: int = int(PointFlags.ONLINE)) -> None:
+    def update_analog_output(
+        self, index: int, value: float, flags: int = int(PointFlags.ONLINE)
+    ) -> None:
         with self._lock:
             point = self._analog_outputs.get(index)
             if point is None:
@@ -132,19 +149,27 @@ class PointDatabase:
 
     # --- Reads (for responding to master polls) ---
 
-    def get_binary_inputs(self, start: int | None = None, stop: int | None = None) -> list[BinaryPoint]:
+    def get_binary_inputs(
+        self, start: int | None = None, stop: int | None = None
+    ) -> list[BinaryPoint]:
         with self._lock:
             return self._get_range(self._binary_inputs, start, stop)
 
-    def get_binary_outputs(self, start: int | None = None, stop: int | None = None) -> list[BinaryPoint]:
+    def get_binary_outputs(
+        self, start: int | None = None, stop: int | None = None
+    ) -> list[BinaryPoint]:
         with self._lock:
             return self._get_range(self._binary_outputs, start, stop)
 
-    def get_analog_inputs(self, start: int | None = None, stop: int | None = None) -> list[AnalogPoint]:
+    def get_analog_inputs(
+        self, start: int | None = None, stop: int | None = None
+    ) -> list[AnalogPoint]:
         with self._lock:
             return self._get_range(self._analog_inputs, start, stop)
 
-    def get_analog_outputs(self, start: int | None = None, stop: int | None = None) -> list[AnalogPoint]:
+    def get_analog_outputs(
+        self, start: int | None = None, stop: int | None = None
+    ) -> list[AnalogPoint]:
         with self._lock:
             return self._get_range(self._analog_outputs, start, stop)
 
@@ -152,7 +177,9 @@ class PointDatabase:
         with self._lock:
             return self._get_range(self._counters, start, stop)
 
-    def get_frozen_counters(self, start: int | None = None, stop: int | None = None) -> list[CounterPoint]:
+    def get_frozen_counters(
+        self, start: int | None = None, stop: int | None = None
+    ) -> list[CounterPoint]:
         with self._lock:
             return self._get_range(self._frozen_counters, start, stop)
 
@@ -176,7 +203,9 @@ class PointDatabase:
     def counter_count(self) -> int:
         return len(self._counters)
 
-    def _get_range(self, store: dict, start: int | None, stop: int | None) -> list:
+    def _get_range(
+        self, store: dict[int, Any], start: int | None, stop: int | None,
+    ) -> list[Any]:
         if start is None and stop is None:
             return list(store.values())
         points = []

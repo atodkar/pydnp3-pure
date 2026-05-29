@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from enum import Enum, auto
-from typing import Callable
 
-from ..app.constants import CommandStatus, FunctionCode, Qualifier
-from ..app.fragment import AppMessage, ObjectData, build_response, parse_fragment
+from ..app.constants import FunctionCode, Qualifier
+from ..app.fragment import AppMessage, ObjectData, build_response
 from ..app.header import IIN
 from ..app.object_header import ObjectHeader
-from ..objects.types import AnalogOutputCommand, AnalogPoint, BinaryPoint, CounterPoint, CROB
+from ..objects.types import CROB, AnalogOutputCommand, AnalogPoint, BinaryPoint
 from .config import OutstationConfig
 from .database import PointDatabase
 from .event_buffer import Event, EventBuffer
@@ -203,9 +203,11 @@ class OutstationSession:
 
     def _handle_delay_measure(self, message: AppMessage) -> None:
         """Respond with time delay (0 ms for simplicity)."""
-        from ..objects.types import DNP3Timestamp
         obj = ObjectData(
-            header=ObjectHeader(group=52, variation=2, qualifier=Qualifier.COUNT_8, start=0, stop=0, count=1),
+            header=ObjectHeader(
+                group=52, variation=2, qualifier=Qualifier.COUNT_8,
+                start=0, stop=0, count=1,
+            ),
             points=[],
         )
         seq = message.header.control.seq
@@ -214,9 +216,9 @@ class OutstationSession:
 
     def _handle_restart(self, message: AppMessage, cold: bool) -> None:
         if cold:
-            delay = self._handler.on_cold_restart()
+            self._handler.on_cold_restart()
         else:
-            delay = self._handler.on_warm_restart()
+            self._handler.on_warm_restart()
         seq = message.header.control.seq
         response = build_response(seq=seq, iin=self._iin, objects=[])
         self._send(response)
@@ -404,7 +406,9 @@ class OutstationSession:
 
     # --- Control helpers ---
 
-    def _process_binary_controls(self, obj: ObjectData, direct: bool, select: bool = False) -> ObjectData:
+    def _process_binary_controls(
+        self, obj: ObjectData, direct: bool, select: bool = False,
+    ) -> ObjectData:
         results: list[tuple[int, CROB]] = []
         for idx, crob in obj.points:
             if direct:
@@ -420,7 +424,9 @@ class OutstationSession:
             )))
         return ObjectData(header=obj.header, points=results)
 
-    def _process_analog_controls(self, obj: ObjectData, direct: bool, select: bool = False) -> ObjectData:
+    def _process_analog_controls(
+        self, obj: ObjectData, direct: bool, select: bool = False,
+    ) -> ObjectData:
         results: list[AnalogOutputCommand] = []
         for cmd in obj.points:
             if direct:
@@ -429,7 +435,9 @@ class OutstationSession:
                 status = self._handler.on_select_analog(cmd.index, float(cmd.value))
             else:
                 status = self._handler.on_operate_analog(cmd.index, float(cmd.value))
-            results.append(AnalogOutputCommand(index=cmd.index, value=cmd.value, status=int(status)))
+            results.append(AnalogOutputCommand(
+                index=cmd.index, value=cmd.value, status=int(status),
+            ))
         return ObjectData(header=obj.header, points=results)
 
     # --- Event and IIN management ---

@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from ..app.constants import CommandStatus
-from ..objects.types import AnalogOutputCommand, CROB
+from ..objects.types import CROB
 
 
 class IOutstationHandler(ABC):

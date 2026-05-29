@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import ssl
-from typing import Callable
+from collections.abc import Callable
 
 from .channel import IChannel
 
@@ -35,7 +35,7 @@ class TcpClient(IChannel):
         self._writer: asyncio.StreamWriter | None = None
         self._receive_callback: Callable[[bytes], None] | None = None
         self._running = False
-        self._read_task: asyncio.Task | None = None
+        self._read_task: asyncio.Task[None] | None = None
 
     @property
     def is_open(self) -> bool:
@@ -46,13 +46,13 @@ class TcpClient(IChannel):
 
     async def open(self) -> None:
         """Connect to the remote host."""
-        kwargs = {}
+        kwargs: dict[str, object] = {}
         if self._ssl:
             kwargs["ssl"] = self._ssl
             kwargs["server_hostname"] = self._server_hostname or self._host
 
         self._reader, self._writer = await asyncio.open_connection(
-            self._host, self._port, **kwargs
+            self._host, self._port, **kwargs  # type: ignore[arg-type]
         )
         self._running = True
         self._read_task = asyncio.ensure_future(self._read_loop())

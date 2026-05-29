@@ -7,9 +7,9 @@ hex dump utilities for protocol troubleshooting.
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
-from .app.constants import FunctionCode, ObjectGroup
+from .app.constants import FunctionCode
 from .app.fragment import AppMessage, ObjectData, parse_fragment
 
 

@@ -4,26 +4,24 @@ Demonstrates the full protocol stack without any network by directly
 connecting master output to outstation input and vice versa.
 """
 
-import asyncio
 import sys
+
 sys.path.insert(0, "src")
 
-from pydnp3_pure.app.constants import CommandStatus, FunctionCode
+from pydnp3_pure.app.constants import CommandStatus
 from pydnp3_pure.app.fragment import AppMessage, parse_fragment
-from pydnp3_pure.link.layer import LinkLayer
 from pydnp3_pure.link.frame import LinkFrame
-from pydnp3_pure.transport.layer import TransportLayer
-from pydnp3_pure.transport.segmenter import Segmenter
-from pydnp3_pure.transport.reassembler import Reassembler
-from pydnp3_pure.app.layer import ApplicationLayer
+from pydnp3_pure.link.layer import LinkLayer
+from pydnp3_pure.master.config import MasterConfig
+from pydnp3_pure.master.handler import IMasterHandler
+from pydnp3_pure.master.session import MasterSession
 from pydnp3_pure.objects.types import CROB
 from pydnp3_pure.outstation.config import OutstationConfig
 from pydnp3_pure.outstation.database import PointDatabase
 from pydnp3_pure.outstation.handler import IOutstationHandler
 from pydnp3_pure.outstation.session import OutstationSession
-from pydnp3_pure.master.config import MasterConfig
-from pydnp3_pure.master.handler import IMasterHandler
-from pydnp3_pure.master.session import MasterSession
+from pydnp3_pure.transport.reassembler import Reassembler
+from pydnp3_pure.transport.segmenter import Segmenter
 
 
 class SimpleOutstationHandler(IOutstationHandler):

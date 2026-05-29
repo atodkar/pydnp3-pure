@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 from abc import ABC, abstractmethod
-from typing import Callable
+from collections.abc import Callable
 
 
 class IChannel(ABC):

@@ -6,10 +6,10 @@ letting you unit-test your application logic without TCP connections.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
-from .app.constants import CommandStatus, FunctionCode
+from .app.constants import CommandStatus
 from .app.fragment import AppMessage, parse_fragment
 from .link.frame import LinkFrame
 from .link.layer import LinkLayer
