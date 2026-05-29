@@ -20,7 +20,7 @@ from .constants import (
     SYNC_1,
     SYNC_2,
 )
-from .crc import append_crc, compute_crc, verify_crc
+from .crc import compute_crc, verify_crc
 
 
 @dataclass(slots=True)
@@ -150,7 +150,9 @@ def parse_header(data: bytes | bytearray | memoryview) -> LinkHeader | None:
     return LinkHeader.from_control_byte(length, ctrl, destination, source)
 
 
-def extract_user_data(raw_frame: bytes | bytearray | memoryview, user_data_length: int) -> bytes | None:
+def extract_user_data(
+    raw_frame: bytes | bytearray | memoryview, user_data_length: int,
+) -> bytes | None:
     """Extract and validate user data from CRC-blocked body bytes.
 
     `raw_frame` should start after the 10-byte header (i.e., the body portion).

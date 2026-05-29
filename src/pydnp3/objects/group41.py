@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..app.constants import CommandStatus, Qualifier
+from ..app.constants import Qualifier
 from ..util.buffer import ReadBuffer, WriteBuffer
 from .base import ObjectGroupHandler
 from .registry import register_handler
@@ -57,7 +57,8 @@ class Group41Handler(ObjectGroupHandler):
         return commands
 
     def serialize(
-        self, variation: int, qualifier: Qualifier, points: list[AnalogOutputCommand], buf: WriteBuffer
+        self, variation: int, qualifier: Qualifier,
+        points: list[AnalogOutputCommand], buf: WriteBuffer,
     ) -> None:
         for cmd in points:
             if qualifier == Qualifier.INDEX_8:

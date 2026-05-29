@@ -7,8 +7,8 @@ from typing import Any
 
 from ..objects.registry import get_handler
 from ..util.buffer import ReadBuffer, WriteBuffer
-from .constants import FunctionCode, Qualifier
-from .header import AppControl, AppHeader, IIN
+from .constants import FunctionCode
+from .header import IIN, AppControl, AppHeader
 from .object_header import ObjectHeader, parse_object_header, write_object_header
 
 

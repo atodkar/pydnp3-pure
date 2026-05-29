@@ -20,11 +20,11 @@ from . import (  # noqa: F401
 )
 from .registry import get_handler, is_registered  # noqa: F401
 from .types import (  # noqa: F401
+    CROB,
     AnalogOutputCommand,
     AnalogPoint,
     BinaryPoint,
     CounterPoint,
-    CROB,
     DataPoint,
     DNP3Timestamp,
 )

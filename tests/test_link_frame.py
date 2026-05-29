@@ -1,9 +1,14 @@
 """Tests for DNP3 Link Frame parsing and serialization."""
 
-import pytest
-from pydnp3.link.frame import LinkFrame, LinkHeader, parse_header, extract_user_data, wire_frame_size
-from pydnp3.link.constants import PrimaryFunction, SYNC_1, SYNC_2, MIN_LENGTH_FIELD
+from pydnp3.link.constants import MIN_LENGTH_FIELD, SYNC_1, SYNC_2, PrimaryFunction
 from pydnp3.link.crc import compute_crc
+from pydnp3.link.frame import (
+    LinkFrame,
+    LinkHeader,
+    extract_user_data,
+    parse_header,
+    wire_frame_size,
+)
 
 
 def _make_raw_header(length=5, ctrl=0xC4, dst=1, src=0):

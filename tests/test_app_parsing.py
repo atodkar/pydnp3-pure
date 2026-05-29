@@ -1,11 +1,9 @@
 """Tests for DNP3 Application Layer parsing."""
 
-import pytest
-from pydnp3.app.fragment import parse_fragment, build_request, build_response, ObjectData
-from pydnp3.app.header import AppControl, IIN, AppHeader
+from pydnp3.app.constants import FunctionCode, Qualifier
+from pydnp3.app.fragment import ObjectData, build_request, build_response, parse_fragment
+from pydnp3.app.header import IIN
 from pydnp3.app.object_header import ObjectHeader
-from pydnp3.app.constants import FunctionCode, Qualifier, IIN1
-from pydnp3.objects.types import AnalogPoint, BinaryPoint
 
 
 class TestParseFragment:

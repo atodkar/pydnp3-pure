@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
-from ..app.constants import CommandStatus, FunctionCode, Qualifier
-from ..app.fragment import AppMessage, ObjectData, build_request, parse_fragment
-from ..app.header import AppControl
+from ..app.constants import FunctionCode, Qualifier
+from ..app.fragment import AppMessage, ObjectData, build_request
 from ..app.object_header import ObjectHeader
-from ..objects.types import AnalogOutputCommand, CROB
+from ..objects.types import CROB, AnalogOutputCommand
 from .config import MasterConfig
 from .handler import IMasterHandler
 
@@ -127,7 +126,9 @@ class MasterSession:
                                            start=0, stop=0, count=0))
             for v in (2, 3, 4)
         ]
-        data = build_request(FunctionCode.DISABLE_UNSOLICITED, seq=self._next_seq(), objects=objects)
+        data = build_request(
+            FunctionCode.DISABLE_UNSOLICITED, seq=self._next_seq(), objects=objects,
+        )
         self._send(data)
 
     def send_confirm(self, seq: int) -> None:

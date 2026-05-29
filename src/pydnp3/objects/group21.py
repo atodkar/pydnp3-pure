@@ -77,7 +77,8 @@ class Group21Handler(ObjectGroupHandler):
                 buf.write_uint16(point.value & 0xFFFF)
 
             if variation in (5, 6):
-                ts = DNP3Timestamp.from_datetime(point.timestamp) if point.timestamp else DNP3Timestamp(0)
+                ts = (DNP3Timestamp.from_datetime(point.timestamp)
+                      if point.timestamp else DNP3Timestamp(0))
                 buf.write_uint32(ts.ms_since_epoch & 0xFFFFFFFF)
                 buf.write_uint16((ts.ms_since_epoch >> 32) & 0xFFFF)
 

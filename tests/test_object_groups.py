@@ -1,10 +1,10 @@
 """Tests for DNP3 Object Group handlers."""
 
 import struct
-import pytest
-from pydnp3.objects import get_handler
-from pydnp3.objects.types import AnalogPoint, BinaryPoint, CounterPoint, CROB, AnalogOutputCommand
+
 from pydnp3.app.constants import Qualifier
+from pydnp3.objects import get_handler
+from pydnp3.objects.types import AnalogPoint, BinaryPoint
 from pydnp3.util.buffer import ReadBuffer, WriteBuffer
 
 

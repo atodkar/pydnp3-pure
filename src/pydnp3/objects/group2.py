@@ -42,7 +42,9 @@ class Group2Handler(ObjectGroupHandler):
                 ms = ms_low | (ms_high << 32)
                 timestamp = DNP3Timestamp(ms_since_epoch=ms).to_datetime()
 
-            points.append(BinaryPoint(index=idx, value=value, flags=flags & 0x7F, timestamp=timestamp))
+            points.append(BinaryPoint(
+                index=idx, value=value, flags=flags & 0x7F, timestamp=timestamp,
+            ))
         return points
 
     def serialize(
@@ -60,7 +62,8 @@ class Group2Handler(ObjectGroupHandler):
             buf.write_uint8(flags)
 
             if variation >= 2:
-                ts = DNP3Timestamp.from_datetime(point.timestamp) if point.timestamp else DNP3Timestamp(0)
+                ts = (DNP3Timestamp.from_datetime(point.timestamp)
+                      if point.timestamp else DNP3Timestamp(0))
                 buf.write_uint32(ts.ms_since_epoch & 0xFFFFFFFF)
                 buf.write_uint16((ts.ms_since_epoch >> 32) & 0xFFFF)
 

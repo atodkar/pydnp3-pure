@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Callable, Coroutine, Any
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 
 class AsyncTimer:
@@ -11,7 +12,9 @@ class AsyncTimer:
 
     __slots__ = ("_delay", "_callback", "_task")
 
-    def __init__(self, delay_seconds: float, callback: Callable[[], Coroutine[Any, Any, None]]) -> None:
+    def __init__(
+        self, delay_seconds: float, callback: Callable[[], Coroutine[Any, Any, None]],
+    ) -> None:
         self._delay = delay_seconds
         self._callback = callback
         self._task: asyncio.Task[None] | None = None

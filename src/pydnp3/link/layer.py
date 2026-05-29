@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from enum import Enum, auto
-from typing import Callable
 
 from .constants import HEADER_SIZE, MAX_USER_DATA, MIN_LENGTH_FIELD, SYNC_1, SYNC_2
 from .frame import LinkFrame, LinkHeader, extract_user_data, parse_header, wire_frame_size

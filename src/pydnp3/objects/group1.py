@@ -49,7 +49,7 @@ class Group1Handler(ObjectGroupHandler):
         """Variation 1: Packed format (1 bit per point, 8 per byte)."""
         points: list[BinaryPoint] = []
         for i in range(count):
-            byte_idx = i // 8
+            i // 8
             bit_idx = i % 8
             if bit_idx == 0:
                 current_byte = buf.read_uint8()

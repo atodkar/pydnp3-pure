@@ -10,9 +10,9 @@ from .constants import (
     AC_FIR,
     AC_SEQ_MASK,
     AC_UNS,
-    FunctionCode,
     IIN1,
     IIN2,
+    FunctionCode,
 )
 
 

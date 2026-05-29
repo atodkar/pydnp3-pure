@@ -2,20 +2,20 @@
 name = "pydnp3"
 version = "0.1.0"
 description = "Pure Python DNP3 protocol library supporting master and outstation roles"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Anand Todkar" }]
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4",
-    "pytest-asyncio>=0.23",
-    "pytest-cov>=4.1",
-    "hypothesis>=6.90",
-    "mypy>=1.8",
-    "ruff>=0.2",
-    "twine>=5.0",
+    "pytest==8.3.5",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.1.1",
+    "hypothesis==6.119.3",
+    "mypy==1.14.1",
+    "ruff==0.8.6",
+    "twine==6.1.0",
 ]
 
 [build-system]
@@ -30,13 +30,13 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 strict = true
 packages = ["pydnp3"]
 mypy_path = "src"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]

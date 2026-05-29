@@ -6,7 +6,7 @@ import struct
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Self
+    pass
 
 
 class ReadBuffer:
@@ -33,32 +33,32 @@ class ReadBuffer:
         return val
 
     def read_uint16(self) -> int:
-        val = struct.unpack_from("<H", self._data, self._offset)[0]
+        val: int = struct.unpack_from("<H", self._data, self._offset)[0]
         self._offset += 2
         return val
 
     def read_int16(self) -> int:
-        val = struct.unpack_from("<h", self._data, self._offset)[0]
+        val: int = struct.unpack_from("<h", self._data, self._offset)[0]
         self._offset += 2
         return val
 
     def read_uint32(self) -> int:
-        val = struct.unpack_from("<I", self._data, self._offset)[0]
+        val: int = struct.unpack_from("<I", self._data, self._offset)[0]
         self._offset += 4
         return val
 
     def read_int32(self) -> int:
-        val = struct.unpack_from("<i", self._data, self._offset)[0]
+        val: int = struct.unpack_from("<i", self._data, self._offset)[0]
         self._offset += 4
         return val
 
     def read_float32(self) -> float:
-        val = struct.unpack_from("<f", self._data, self._offset)[0]
+        val: float = struct.unpack_from("<f", self._data, self._offset)[0]
         self._offset += 4
         return val
 
     def read_float64(self) -> float:
-        val = struct.unpack_from("<d", self._data, self._offset)[0]
+        val: float = struct.unpack_from("<d", self._data, self._offset)[0]
         self._offset += 8
         return val
 

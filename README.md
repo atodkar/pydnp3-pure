@@ -17,68 +17,217 @@ Pure Python DNP3 (IEEE 1815 / IEC 62351-5) protocol library supporting both **ma
 ## Installation
 
 ```bash
-pip install pydnp3
-```
+pip install -e .
 
-Requires **Python 3.11+**.
-
-## Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/<your-org>/pydnp3.git
-cd pydnp3
-
-# Create and activate a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
-
-# Install in editable mode with dev dependencies
+# With development tools
 pip install -e ".[dev]"
 ```
 
-### Running quality checks locally
-
-```bash
-ruff check .          # Linting
-mypy                  # Type checking
-pytest tests/ -v      # Tests
-python -m build       # Build sdist + wheel
-twine check dist/*    # Validate package metadata
-```
-
-Deactivate the virtual environment when done:
-
-```bash
-deactivate
-```
+Requires **Python 3.10+**.
 
 ## Quick Start
 
-Use the example scripts as the primary entry point. They are complete, runnable,
-and kept current with API changes.
+### Outstation (responds to master)
 
-| Scenario | Script |
-|----------|--------|
-| Master polling an outstation over TCP | [examples/master_basic.py](examples/master_basic.py) |
-| Outstation server over TCP | [examples/outstation_basic.py](examples/outstation_basic.py) |
-| In-process master/outstation loopback | [examples/master_outstation_loopback.py](examples/master_outstation_loopback.py) |
-| Master over TLS | [examples/master_tls.py](examples/master_tls.py) |
-| Outstation over TLS | [examples/outstation_tls.py](examples/outstation_tls.py) |
-| TLS data exchange helper | [examples/tls_data_exchange.py](examples/tls_data_exchange.py) |
+```python
+import asyncio
+from pydnp3.app.constants import CommandStatus
+from pydnp3.objects.types import CROB
+from pydnp3.outstation.config import OutstationConfig
+from pydnp3.outstation.database import PointDatabase
+from pydnp3.outstation.handler import IOutstationHandler
+from pydnp3.outstation.session import OutstationSession
+from pydnp3.io.tcp_server import TcpServer
+from pydnp3.link.layer import LinkLayer
+from pydnp3.link.frame import LinkFrame
+from pydnp3.transport.layer import TransportLayer
+from pydnp3.app.layer import ApplicationLayer
 
-Typical workflow:
 
-1. Start the outstation script.
-2. Start the corresponding master script.
-3. Observe integrity polls, control commands, and event responses.
+class MyHandler(IOutstationHandler):
+    def __init__(self, db):
+        self.db = db
 
-For API details, see the core modules:
+    def on_direct_operate_binary(self, index: int, crob: CROB) -> CommandStatus:
+        self.db.update_binary_output(index, crob.is_latch_on)
+        return CommandStatus.SUCCESS
 
-- [src/pydnp3/master/session.py](src/pydnp3/master/session.py)
-- [src/pydnp3/outstation/session.py](src/pydnp3/outstation/session.py)
-- [src/pydnp3/io/tls.py](src/pydnp3/io/tls.py)
+    def on_direct_operate_analog(self, index: int, value: float) -> CommandStatus:
+        self.db.update_analog_output(index, value)
+        return CommandStatus.SUCCESS
+
+
+async def main():
+    config = OutstationConfig(address=10, master_address=1)
+    db = PointDatabase()
+    db.add_analog_input(0, value=25.5)
+    db.add_analog_input(1, value=100.0)
+    db.add_binary_output(0, value=False)
+
+    handler = MyHandler(db)
+    server = TcpServer(host="0.0.0.0", port=20000)
+
+    def send_frame(frame: LinkFrame):
+        server.send(frame.serialize())
+
+    transport = TransportLayer(
+        on_fragment=lambda f: None,
+        send_frame=send_frame,
+        local_address=config.address,
+        remote_address=config.master_address,
+    )
+
+    session = OutstationSession(
+        config=config, database=db, handler=handler,
+        send_fragment=lambda f: transport.send_fragment(f),
+    )
+
+    app_layer = ApplicationLayer(transport=transport, on_message=session.on_message)
+    transport._on_fragment = app_layer.on_fragment_received
+
+    link_layer = LinkLayer(on_frame=transport.on_frame_received)
+    server.set_receive_callback(link_layer.data_received)
+
+    await server.open()
+    print("Outstation running on port 20000")
+
+    # Update values over time
+    counter = 0
+    while True:
+        await asyncio.sleep(1.0)
+        counter += 1
+        db.update_analog_input(0, float(counter))
+
+asyncio.run(main())
+```
+
+### Master (polls outstation)
+
+```python
+import asyncio
+from pydnp3.app.fragment import AppMessage
+from pydnp3.objects.types import CROB
+from pydnp3.master.config import MasterConfig
+from pydnp3.master.handler import IMasterHandler
+from pydnp3.master.session import MasterSession
+from pydnp3.io.tcp_client import TcpClient
+from pydnp3.link.layer import LinkLayer
+from pydnp3.link.frame import LinkFrame
+from pydnp3.transport.layer import TransportLayer
+from pydnp3.app.layer import ApplicationLayer
+
+
+class MyMasterHandler(IMasterHandler):
+    def on_response_received(self, message: AppMessage) -> None:
+        for obj in message.objects:
+            print(f"Group {obj.header.group}: {len(obj.points)} points")
+            for pt in obj.points:
+                print(f"  [{pt.index}] = {pt.value}")
+
+
+async def main():
+    config = MasterConfig(address=1, outstation_address=10)
+    client = TcpClient(host="127.0.0.1", port=20000)
+
+    def send_frame(frame: LinkFrame):
+        client.send(frame.serialize())
+
+    transport = TransportLayer(
+        on_fragment=lambda f: None,
+        send_frame=send_frame,
+        local_address=config.address,
+        remote_address=config.outstation_address,
+    )
+
+    handler = MyMasterHandler()
+    session = MasterSession(
+        config=config, handler=handler,
+        send_fragment=lambda f: transport.send_fragment(f, direction=True),
+    )
+
+    app_layer = ApplicationLayer(transport=transport, on_message=session.on_message)
+    transport._on_fragment = app_layer.on_fragment_received
+
+    link_layer = LinkLayer(on_frame=transport.on_frame_received)
+    client.set_receive_callback(link_layer.data_received)
+
+    await client.open()
+
+    # Integrity poll
+    session.send_integrity_poll()
+    await asyncio.sleep(1.0)
+
+    # Direct Operate analog output
+    session.send_direct_operate_analog(index=0, value=42.0)
+    await asyncio.sleep(1.0)
+
+    # Direct Operate binary output (LATCH_ON)
+    crob = CROB(control=0x03, count=1, on_time_ms=0, off_time_ms=0)
+    session.send_direct_operate_binary(index=0, crob=crob)
+    await asyncio.sleep(1.0)
+
+    await client.close()
+
+asyncio.run(main())
+```
+
+### TLS Configuration
+
+```python
+from pydnp3.io.tls import TlsConfig, create_tls_context
+from pydnp3.io.tcp_client import TcpClient
+
+tls_config = TlsConfig(
+    ca_cert_path="/path/to/ca.pem",
+    client_cert_path="/path/to/client.pem",
+    client_key_path="/path/to/client-key.pem",
+    key_password="optional-passphrase",
+    verify_hostname=True,
+    server_hostname="dnp3.example.com",
+)
+ssl_ctx = create_tls_context(tls_config)
+
+client = TcpClient(
+    host="dnp3.example.com",
+    port=20001,
+    ssl_context=ssl_ctx,
+    server_hostname="dnp3.example.com",
+)
+```
+
+### Low-Level Protocol Parsing
+
+```python
+from pydnp3.link.crc import compute_crc, verify_crc
+from pydnp3.link.frame import LinkFrame
+from pydnp3.link.layer import LinkLayer
+from pydnp3.transport.reassembler import Reassembler
+from pydnp3.app.fragment import parse_fragment
+
+# Parse raw bytes from a capture
+raw_bytes = b"\x05\x64\x0a\xc4\x01\x00\x0a\x00..."
+
+frames = []
+link = LinkLayer(on_frame=frames.append)
+link.data_received(raw_bytes)
+
+for frame in frames:
+    # Reassemble transport segments
+    reassembler = Reassembler()
+    fragment = reassembler.add_segment(frame.user_data)
+    if fragment:
+        msg = parse_fragment(fragment)
+        print(f"FC={msg.function.name}, Objects={len(msg.objects)}")
+        for obj in msg.objects:
+            print(f"  Group {obj.header.group} Var {obj.header.variation}")
+```
+
+### In-Process Loopback (Testing)
+
+```python
+# See examples/master_outstation_loopback.py for a complete example that
+# connects master ↔ outstation in-memory without any network.
+```
 
 ## Architecture
 
@@ -129,15 +278,39 @@ For API details, see the core modules:
 
 ## Adding Custom Object Groups
 
-The object model is extensible through handler registration. To add a custom
-group:
+```python
+from pydnp3.objects.base import ObjectGroupHandler
+from pydnp3.objects.registry import register_handler
+from pydnp3.app.constants import Qualifier
+from pydnp3.util.buffer import ReadBuffer, WriteBuffer
 
-1. Implement a handler by extending [src/pydnp3/objects/base.py](src/pydnp3/objects/base.py).
-2. Register the handler through [src/pydnp3/objects/registry.py](src/pydnp3/objects/registry.py).
-3. Implement parse and serialize logic for each supported variation.
-4. Add tests under [tests/test_object_groups.py](tests/test_object_groups.py).
 
-Existing handlers in [src/pydnp3/objects](src/pydnp3/objects) are the reference implementation pattern.
+@register_handler
+class Group110Handler(ObjectGroupHandler):
+    """Octet String (Group 110)."""
+
+    @property
+    def group(self) -> int:
+        return 110
+
+    @property
+    def supported_variations(self) -> tuple[int, ...]:
+        return (0,)  # Variable length
+
+    def parse(self, variation, qualifier, count, start, buf: ReadBuffer):
+        strings = []
+        for i in range(count):
+            data = buf.read_bytes(variation)  # Variation = string length
+            strings.append(data.decode("ascii", errors="replace"))
+        return strings
+
+    def serialize(self, variation, qualifier, points, buf: WriteBuffer):
+        for s in points:
+            buf.write_bytes(s.encode("ascii")[:variation])
+
+    def point_size(self, variation: int) -> int:
+        return variation
+```
 
 ## Supported Function Codes
 
@@ -186,45 +359,6 @@ python examples/outstation_basic.py
 python examples/master_basic.py
 ```
 
-## Versioning and Release
-
-Releases are managed through GitHub Actions with version validation and CI gating.
-
-### Release process
-
-1. Update the version in [pyproject.toml](pyproject.toml).
-2. Commit and push to main. CI runs lint, type check, and tests across Python 3.11/3.12/3.13.
-3. Create a GitHub Release with a tag matching the version (e.g., tag `v0.2.0` for version `0.2.0`).
-   - **Pre-release** (mark as pre-release in GitHub): publishes to [TestPyPI](https://test.pypi.org/p/pydnp3) for validation.
-   - **Full release**: publishes to [PyPI](https://pypi.org/p/pydnp3).
-4. The publish workflow validates that the tag matches `pyproject.toml` version, re-runs all quality checks, builds the package, and uploads.
-
-### Testing a pre-release from TestPyPI
-
-```bash
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydnp3
-```
-
-### Local pre-release check
-
-```bash
-source .venv/bin/activate
-ruff check .
-mypy
-pytest tests/ -v
-python -m build
-twine check dist/*
-```
-
-### PyPI Trusted Publisher setup (one-time)
-
-Configure Trusted Publishers in PyPI and TestPyPI with:
-
-- Owner: your GitHub user or organization
-- Repository: this repository name
-- Workflow: `publish.yml`
-- Environment: `pypi` (for PyPI) / `testpypi` (for TestPyPI)
-
 ## Design Decisions
 
 1. **asyncio over threading**: DNP3 is event-driven; asyncio maps naturally and avoids GIL contention for I/O-bound work.
@@ -265,4 +399,4 @@ Response: [App Control][Function Code][IIN1][IIN2][Object Headers...]
 
 ## License
 
-[LICENSE](LICENSE)
+MIT

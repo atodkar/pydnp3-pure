@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Type
-
 from .base import ObjectGroupHandler
 
 _registry: dict[int, ObjectGroupHandler] = {}
 
 
-def register_handler(cls: Type[ObjectGroupHandler]) -> Type[ObjectGroupHandler]:
+def register_handler(cls: type[ObjectGroupHandler]) -> type[ObjectGroupHandler]:
     """Class decorator to register an object group handler."""
     instance = cls()
     _registry[instance.group] = instance

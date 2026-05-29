@@ -1,9 +1,8 @@
 """Tests for DNP3 Transport Layer."""
 
-import pytest
+from pydnp3.transport.constants import MAX_PAYLOAD_PER_SEGMENT, TH_FIN, TH_FIR, TH_SEQ_MASK
 from pydnp3.transport.reassembler import Reassembler
 from pydnp3.transport.segmenter import Segmenter
-from pydnp3.transport.constants import TH_FIR, TH_FIN, TH_SEQ_MASK, MAX_PAYLOAD_PER_SEGMENT
 
 
 class TestReassembler:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from ..transport.layer import TransportLayer
 from .fragment import AppMessage, parse_fragment
