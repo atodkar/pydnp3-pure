@@ -1,8 +1,8 @@
 """Tests for DNP3 Link Layer state machine."""
 
-from pydnp3.link.constants import PrimaryFunction
-from pydnp3.link.frame import LinkFrame
-from pydnp3.link.layer import LinkLayer
+from pydnp3_pure.link.constants import PrimaryFunction
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.link.layer import LinkLayer
 
 
 class TestLinkLayer:

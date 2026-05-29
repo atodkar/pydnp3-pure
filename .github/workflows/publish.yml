@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/pydnp3
+      url: https://test.pypi.org/p/pydnp3-pure
     permissions:
       id-token: write
 
@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/pydnp3
+      url: https://pypi.org/p/pydnp3-pure
     permissions:
       id-token: write
 

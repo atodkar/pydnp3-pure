@@ -2,10 +2,10 @@
 
 import struct
 
-from pydnp3.app.constants import Qualifier
-from pydnp3.objects import get_handler
-from pydnp3.objects.types import AnalogPoint, BinaryPoint
-from pydnp3.util.buffer import ReadBuffer, WriteBuffer
+from pydnp3_pure.app.constants import Qualifier
+from pydnp3_pure.objects import get_handler
+from pydnp3_pure.objects.types import AnalogPoint, BinaryPoint
+from pydnp3_pure.util.buffer import ReadBuffer, WriteBuffer
 
 
 class TestGroup1BinaryInput:

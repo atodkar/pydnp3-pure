@@ -2,15 +2,15 @@
 
 import struct
 
-from pydnp3.app.constants import FunctionCode, Qualifier
-from pydnp3.app.fragment import ObjectData, build_response, parse_fragment
-from pydnp3.app.header import IIN
-from pydnp3.app.object_header import ObjectHeader
-from pydnp3.link.constants import PrimaryFunction
-from pydnp3.link.frame import LinkFrame
-from pydnp3.link.layer import LinkLayer
-from pydnp3.objects.types import AnalogPoint
-from pydnp3.transport.reassembler import Reassembler
+from pydnp3_pure.app.constants import FunctionCode, Qualifier
+from pydnp3_pure.app.fragment import ObjectData, build_response, parse_fragment
+from pydnp3_pure.app.header import IIN
+from pydnp3_pure.app.object_header import ObjectHeader
+from pydnp3_pure.link.constants import PrimaryFunction
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.link.layer import LinkLayer
+from pydnp3_pure.objects.types import AnalogPoint
+from pydnp3_pure.transport.reassembler import Reassembler
 
 
 class TestFullStack:
@@ -74,7 +74,7 @@ class TestFullStack:
         response_bytes = build_response(seq=5, iin=iin, objects=[obj_data])
 
         # Wrap in transport
-        from pydnp3.transport.segmenter import Segmenter
+        from pydnp3_pure.transport.segmenter import Segmenter
         segmenter = Segmenter()
         segments = segmenter.segment(response_bytes)
         assert len(segments) == 1  # Small enough for one segment
@@ -124,7 +124,7 @@ class TestFullStack:
         response_bytes = build_response(seq=0, iin=IIN(), objects=[obj_data])
 
         # Segment into transport chunks
-        from pydnp3.transport.segmenter import Segmenter
+        from pydnp3_pure.transport.segmenter import Segmenter
         segmenter = Segmenter()
         segments = segmenter.segment(response_bytes)
         assert len(segments) > 1  # Multiple segments needed

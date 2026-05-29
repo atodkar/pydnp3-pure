@@ -35,8 +35,15 @@ jobs:
       - name: Type check (mypy)
         run: mypy
 
-      - name: Run tests
-        run: pytest tests/ -v
+      - name: Run tests with coverage
+        run: pytest tests/ -v --cov=pydnp3_pure --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
   package:
     runs-on: ubuntu-latest

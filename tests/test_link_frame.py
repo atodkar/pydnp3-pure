@@ -1,8 +1,8 @@
 """Tests for DNP3 Link Frame parsing and serialization."""
 
-from pydnp3.link.constants import MIN_LENGTH_FIELD, SYNC_1, SYNC_2, PrimaryFunction
-from pydnp3.link.crc import compute_crc
-from pydnp3.link.frame import (
+from pydnp3_pure.link.constants import MIN_LENGTH_FIELD, SYNC_1, SYNC_2, PrimaryFunction
+from pydnp3_pure.link.crc import compute_crc
+from pydnp3_pure.link.frame import (
     LinkFrame,
     LinkHeader,
     extract_user_data,

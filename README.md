@@ -1,51 +1,129 @@
-# pydnp3
+# pydnp3-pure
 
-Pure Python DNP3 (IEEE 1815 / IEC 62351-5) protocol library supporting both **master** and **outstation** roles over TCP/TLS. No C++ dependencies, no native DLLs — just Python.
+[![CI](https://github.com/anandtodkar/pydnp3-pure/actions/workflows/ci.yml/badge.svg)](https://github.com/anandtodkar/pydnp3-pure/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Features
-
-- **Complete protocol stack**: Data Link Layer (CRC-16) → Transport Layer (fragment reassembly) → Application Layer (object parsing)
-- **Both roles**: Outstation (responds to master polls) and Master (initiates polls and controls)
-- **13 object group handlers**: Binary Inputs/Outputs, Analog Inputs/Outputs, Counters, CROB, Events, Time, Class data, IIN
-- **TLS 1.2+ support**: Built on Python's `ssl` module (OpenSSL) with certificate-based mutual authentication
-- **Asyncio networking**: Non-blocking TCP client/server for high-performance I/O
-- **Event-driven**: Change detection with Class 1/2/3 event buffering and unsolicited responses
-- **Plugin architecture**: Add new object groups with a simple decorator — no core code changes needed
-- **Zero runtime dependencies**: Uses only Python stdlib (asyncio, ssl, struct, enum, dataclasses)
-- **Type-safe**: Full type annotations with dataclass slots for performance
-
-## Installation
+Pure Python DNP3 (IEEE 1815) library. No C++ bindings, no native DLLs — just `pip install` and go.
 
 ```bash
-pip install -e .
-
-# With development tools
-pip install -e ".[dev]"
+pip install pydnp3-pure
 ```
 
-Requires **Python 3.10+**.
+## 30-Second Example
 
-## Quick Start
+**Poll an outstation and read analog values — in 6 lines of logic:**
 
-### Outstation (responds to master)
+```python
+from pydnp3_pure.mock import create_loopback_pair
+
+pair = create_loopback_pair()
+pair.outstation.database.add_analog_input(0, value=72.5)
+pair.outstation.database.add_binary_output(0, value=False)
+
+pair.master.session.send_integrity_poll()
+pair.exchange()
+
+response = pair.master.handler.responses[0]
+for obj in response.objects:
+    for pt in obj.points:
+        print(f"  [{pt.index}] = {pt.value}")
+```
+
+**Issue a control command:**
+
+```python
+from pydnp3_pure.objects.types import CROB
+
+pair.master.session.send_direct_operate_binary(
+    index=0, crob=CROB(control=0x03, count=1, on_time_ms=0, off_time_ms=0)
+)
+pair.exchange()
+assert pair.outstation.database.get_binary_outputs()[0].value is True
+```
+
+## Use Cases
+
+- **SCADA simulators** — Spin up virtual outstations for integration testing
+- **Automated test scripts** — Validate master/outstation logic without physical hardware
+- **IoT gateways** — Lightweight DNP3 endpoint on Raspberry Pi or edge devices
+- **Protocol analysis** — Parse and debug DNP3 traffic with human-readable output
+- **Education** — Learn DNP3 with immediate, runnable code
+
+## Why pydnp3-pure?
+
+| Feature | pydnp3-pure | C++-wrapped alternatives |
+|---------|-------------|--------------------------|
+| Install | `pip install pydnp3-pure` | Compile C++ toolchain |
+| asyncio native | Yes | Threading/callbacks |
+| Type hints | Full (mypy strict) | Partial or none |
+| Data types | Python dataclasses + enums | Custom C++ wrappers |
+| Debugging | Built-in protocol logger | External tools only |
+| Testing | Built-in mock utilities | Requires hardware or simulator |
+| Dependencies | Zero (stdlib only) | OpenDNP3, Boost, etc. |
+
+## Built-in Debugging Tools
+
+DNP3 troubleshooting is hard because raw bytecode is unreadable. pydnp3-pure includes tools to fix that:
+
+```python
+from pydnp3_pure.debug import enable_debug_logging, hex_dump, ProtocolLogger
+
+# Turn on human-readable protocol logging
+enable_debug_logging()
+# Output: 14:23:01 [pydnp3_pure.protocol] INFO: TX READ Request [Class Objects] seq=1
+#         14:23:01 [pydnp3_pure.protocol] INFO: RX RESPONSE [Analog Inputs: 3 pts] seq=1
+
+# Wireshark-friendly hex dump
+raw_frame = b"\x05\x64\x05\xc0\x01\x00\x0a\x00\xe0\xa4"
+print(hex_dump(raw_frame))
+# 0000  05 64 05 c0 01 00 0a 00  e0 a4                   .d........
+
+# Wrap any session for automatic logging
+logger = ProtocolLogger()
+session.on_message = logger.wrap_rx(session.on_message)
+```
+
+## Built-in Mocking for Tests
+
+Write unit tests for your DNP3 application without network or hardware:
+
+```python
+import pytest
+from pydnp3_pure.mock import create_loopback_pair
+
+def test_my_scada_logic():
+    pair = create_loopback_pair()
+    pair.outstation.database.add_analog_input(0, value=98.6)
+
+    pair.master.session.send_integrity_poll()
+    pair.exchange()
+
+    response = pair.master.handler.responses[0]
+    assert response.objects[0].points[0].value == 98.6
+```
+
+## Full Network Example
+
+### Outstation (listens for master connections)
 
 ```python
 import asyncio
-from pydnp3.app.constants import CommandStatus
-from pydnp3.objects.types import CROB
-from pydnp3.outstation.config import OutstationConfig
-from pydnp3.outstation.database import PointDatabase
-from pydnp3.outstation.handler import IOutstationHandler
-from pydnp3.outstation.session import OutstationSession
-from pydnp3.io.tcp_server import TcpServer
-from pydnp3.link.layer import LinkLayer
-from pydnp3.link.frame import LinkFrame
-from pydnp3.transport.layer import TransportLayer
-from pydnp3.app.layer import ApplicationLayer
+from pydnp3_pure.app.constants import CommandStatus
+from pydnp3_pure.objects.types import CROB
+from pydnp3_pure.outstation.config import OutstationConfig
+from pydnp3_pure.outstation.database import PointDatabase
+from pydnp3_pure.outstation.handler import IOutstationHandler
+from pydnp3_pure.outstation.session import OutstationSession
+from pydnp3_pure.io.tcp_server import TcpServer
+from pydnp3_pure.link.layer import LinkLayer
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.transport.layer import TransportLayer
+from pydnp3_pure.app.layer import ApplicationLayer
 
 
 class MyHandler(IOutstationHandler):
-    def __init__(self, db):
+    def __init__(self, db: PointDatabase):
         self.db = db
 
     def on_direct_operate_binary(self, index: int, crob: CROB) -> CommandStatus:
@@ -61,7 +139,6 @@ async def main():
     config = OutstationConfig(address=10, master_address=1)
     db = PointDatabase()
     db.add_analog_input(0, value=25.5)
-    db.add_analog_input(1, value=100.0)
     db.add_binary_output(0, value=False)
 
     handler = MyHandler(db)
@@ -90,37 +167,30 @@ async def main():
 
     await server.open()
     print("Outstation running on port 20000")
-
-    # Update values over time
-    counter = 0
     while True:
         await asyncio.sleep(1.0)
-        counter += 1
-        db.update_analog_input(0, float(counter))
 
 asyncio.run(main())
 ```
 
-### Master (polls outstation)
+### Master (connects and polls)
 
 ```python
 import asyncio
-from pydnp3.app.fragment import AppMessage
-from pydnp3.objects.types import CROB
-from pydnp3.master.config import MasterConfig
-from pydnp3.master.handler import IMasterHandler
-from pydnp3.master.session import MasterSession
-from pydnp3.io.tcp_client import TcpClient
-from pydnp3.link.layer import LinkLayer
-from pydnp3.link.frame import LinkFrame
-from pydnp3.transport.layer import TransportLayer
-from pydnp3.app.layer import ApplicationLayer
+from pydnp3_pure.app.fragment import AppMessage
+from pydnp3_pure.master.config import MasterConfig
+from pydnp3_pure.master.handler import IMasterHandler
+from pydnp3_pure.master.session import MasterSession
+from pydnp3_pure.io.tcp_client import TcpClient
+from pydnp3_pure.link.layer import LinkLayer
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.transport.layer import TransportLayer
+from pydnp3_pure.app.layer import ApplicationLayer
 
 
 class MyMasterHandler(IMasterHandler):
     def on_response_received(self, message: AppMessage) -> None:
         for obj in message.objects:
-            print(f"Group {obj.header.group}: {len(obj.points)} points")
             for pt in obj.points:
                 print(f"  [{pt.index}] = {pt.value}")
 
@@ -152,20 +222,8 @@ async def main():
     client.set_receive_callback(link_layer.data_received)
 
     await client.open()
-
-    # Integrity poll
     session.send_integrity_poll()
     await asyncio.sleep(1.0)
-
-    # Direct Operate analog output
-    session.send_direct_operate_analog(index=0, value=42.0)
-    await asyncio.sleep(1.0)
-
-    # Direct Operate binary output (LATCH_ON)
-    crob = CROB(control=0x03, count=1, on_time_ms=0, off_time_ms=0)
-    session.send_direct_operate_binary(index=0, crob=crob)
-    await asyncio.sleep(1.0)
-
     await client.close()
 
 asyncio.run(main())
@@ -174,59 +232,22 @@ asyncio.run(main())
 ### TLS Configuration
 
 ```python
-from pydnp3.io.tls import TlsConfig, create_tls_context
-from pydnp3.io.tcp_client import TcpClient
+from pydnp3_pure.io.tls import TlsConfig, create_tls_context
+from pydnp3_pure.io.tcp_client import TcpClient
 
 tls_config = TlsConfig(
     ca_cert_path="/path/to/ca.pem",
     client_cert_path="/path/to/client.pem",
     client_key_path="/path/to/client-key.pem",
-    key_password="optional-passphrase",
     verify_hostname=True,
     server_hostname="dnp3.example.com",
 )
 ssl_ctx = create_tls_context(tls_config)
 
 client = TcpClient(
-    host="dnp3.example.com",
-    port=20001,
-    ssl_context=ssl_ctx,
-    server_hostname="dnp3.example.com",
+    host="dnp3.example.com", port=20001,
+    ssl_context=ssl_ctx, server_hostname="dnp3.example.com",
 )
-```
-
-### Low-Level Protocol Parsing
-
-```python
-from pydnp3.link.crc import compute_crc, verify_crc
-from pydnp3.link.frame import LinkFrame
-from pydnp3.link.layer import LinkLayer
-from pydnp3.transport.reassembler import Reassembler
-from pydnp3.app.fragment import parse_fragment
-
-# Parse raw bytes from a capture
-raw_bytes = b"\x05\x64\x0a\xc4\x01\x00\x0a\x00..."
-
-frames = []
-link = LinkLayer(on_frame=frames.append)
-link.data_received(raw_bytes)
-
-for frame in frames:
-    # Reassemble transport segments
-    reassembler = Reassembler()
-    fragment = reassembler.add_segment(frame.user_data)
-    if fragment:
-        msg = parse_fragment(fragment)
-        print(f"FC={msg.function.name}, Objects={len(msg.objects)}")
-        for obj in msg.objects:
-            print(f"  Group {obj.header.group} Var {obj.header.variation}")
-```
-
-### In-Process Loopback (Testing)
-
-```python
-# See examples/master_outstation_loopback.py for a complete example that
-# connects master ↔ outstation in-memory without any network.
 ```
 
 ## Architecture
@@ -249,14 +270,16 @@ for frame in frames:
 
 | Package | Responsibility |
 |---------|---------------|
-| `pydnp3.link` | Data link layer: sync detection, CRC-16 DNP3, frame serialization |
-| `pydnp3.transport` | Transport layer: fragment reassembly (rx) and segmentation (tx) |
-| `pydnp3.app` | Application layer: function codes, qualifiers, object header parsing |
-| `pydnp3.objects` | Object group handlers: plugin registry for all DNP3 data types |
-| `pydnp3.outstation` | Outstation role: session state machine, point database, events |
-| `pydnp3.master` | Master role: polling, control commands, response processing |
-| `pydnp3.io` | Network I/O: async TCP client/server, TLS context builder |
-| `pydnp3.util` | Utilities: binary read/write buffers, async timers |
+| `pydnp3_pure.link` | Data link layer: sync detection, CRC-16 DNP3, frame serialization |
+| `pydnp3_pure.transport` | Transport layer: fragment reassembly (rx) and segmentation (tx) |
+| `pydnp3_pure.app` | Application layer: function codes, qualifiers, object header parsing |
+| `pydnp3_pure.objects` | Object group handlers: plugin registry for all DNP3 data types |
+| `pydnp3_pure.outstation` | Outstation role: session state machine, point database, events |
+| `pydnp3_pure.master` | Master role: polling, control commands, response processing |
+| `pydnp3_pure.io` | Network I/O: async TCP client/server, TLS context builder |
+| `pydnp3_pure.debug` | Human-readable protocol logging and Wireshark hex dump utilities |
+| `pydnp3_pure.mock` | In-memory mocking utilities for unit testing without hardware |
+| `pydnp3_pure.util` | Utilities: binary read/write buffers, async timers |
 
 ## Supported Object Groups
 
@@ -279,10 +302,9 @@ for frame in frames:
 ## Adding Custom Object Groups
 
 ```python
-from pydnp3.objects.base import ObjectGroupHandler
-from pydnp3.objects.registry import register_handler
-from pydnp3.app.constants import Qualifier
-from pydnp3.util.buffer import ReadBuffer, WriteBuffer
+from pydnp3_pure.objects.base import ObjectGroupHandler
+from pydnp3_pure.objects.registry import register_handler
+from pydnp3_pure.util.buffer import ReadBuffer, WriteBuffer
 
 
 @register_handler
@@ -295,14 +317,11 @@ class Group110Handler(ObjectGroupHandler):
 
     @property
     def supported_variations(self) -> tuple[int, ...]:
-        return (0,)  # Variable length
+        return (0,)
 
     def parse(self, variation, qualifier, count, start, buf: ReadBuffer):
-        strings = []
-        for i in range(count):
-            data = buf.read_bytes(variation)  # Variation = string length
-            strings.append(data.decode("ascii", errors="replace"))
-        return strings
+        return [buf.read_bytes(variation).decode("ascii", errors="replace")
+                for _ in range(count)]
 
     def serialize(self, variation, qualifier, points, buf: WriteBuffer):
         for s in points:
@@ -312,36 +331,15 @@ class Group110Handler(ObjectGroupHandler):
         return variation
 ```
 
-## Supported Function Codes
-
-| Code | Name | Direction |
-|------|------|-----------|
-| 0x01 | READ | Master → Outstation |
-| 0x02 | WRITE | Master → Outstation |
-| 0x03 | SELECT | Master → Outstation |
-| 0x04 | OPERATE | Master → Outstation |
-| 0x05 | DIRECT_OPERATE | Master → Outstation |
-| 0x06 | DIRECT_OPERATE_NO_ACK | Master → Outstation |
-| 0x07-0x0C | FREEZE variants | Master → Outstation |
-| 0x0D | COLD_RESTART | Master → Outstation |
-| 0x0E | WARM_RESTART | Master → Outstation |
-| 0x14 | ENABLE_UNSOLICITED | Master → Outstation |
-| 0x15 | DISABLE_UNSOLICITED | Master → Outstation |
-| 0x17 | DELAY_MEASURE | Master → Outstation |
-| 0x81 | RESPONSE | Outstation → Master |
-| 0x82 | UNSOLICITED_RESPONSE | Outstation → Master |
-
 ## Running Tests
 
 ```bash
-# Run all tests
 pytest tests/ -v
 
 # With coverage
-pytest tests/ --cov=pydnp3 --cov-report=term-missing
+pytest tests/ --cov=pydnp3_pure --cov-report=term-missing
 
-# Run specific test module
-pytest tests/test_crc.py -v
+# Specific module
 pytest tests/test_full_stack.py -v
 ```
 
@@ -351,27 +349,19 @@ pytest tests/test_full_stack.py -v
 # In-process loopback (no network needed)
 python examples/master_outstation_loopback.py
 
-# Network examples (run in two terminals)
-# Terminal 1: Start outstation
-python examples/outstation_basic.py
-
-# Terminal 2: Connect master
-python examples/master_basic.py
+# Network examples (two terminals)
+python examples/outstation_basic.py   # Terminal 1
+python examples/master_basic.py       # Terminal 2
 ```
 
 ## Design Decisions
 
-1. **asyncio over threading**: DNP3 is event-driven; asyncio maps naturally and avoids GIL contention for I/O-bound work.
-
-2. **Plugin registry for object groups**: Each group is a self-contained handler. Adding new groups requires zero changes to core parsing logic.
-
-3. **Zero-copy parsing with `memoryview`**: `ReadBuffer` wraps `struct.unpack_from` over memoryview for efficient parsing without intermediate byte copies.
-
-4. **No runtime dependencies**: The core library uses only Python stdlib. This means no version conflicts, no supply-chain risk, and deployment anywhere Python runs.
-
-5. **Protocol layers as composable classes**: Each layer (Link, Transport, App) is independent and testable. They connect via callbacks, making it trivial to swap TCP for serial or add logging middleware.
-
-6. **CRC-16 table from IEEE 870-5-1**: The exact 256-entry lookup table from the DNP3 specification ensures byte-level compatibility with all compliant implementations.
+1. **asyncio over threading** — DNP3 is event-driven; asyncio maps naturally and avoids GIL contention.
+2. **Plugin registry for object groups** — Each group is a self-contained handler. Adding groups requires zero changes to core parsing.
+3. **Zero-copy parsing with `memoryview`** — `ReadBuffer` wraps `struct.unpack_from` for efficient parsing without intermediate copies.
+4. **Zero runtime dependencies** — Only Python stdlib. No version conflicts, no supply-chain risk.
+5. **Composable protocol layers** — Each layer connects via callbacks, making it trivial to swap TCP for serial or inject logging.
+6. **CRC-16 table from IEEE 870-5-1** — The exact 256-entry lookup table from the DNP3 spec ensures byte-level compatibility.
 
 ## Protocol Reference
 
@@ -379,7 +369,6 @@ python examples/master_basic.py
 ```
 [0x05][0x64][Length][Control][Dest_L][Dest_H][Src_L][Src_H][CRC_L][CRC_H]
 [Data Block 1 (16 bytes)][CRC_L][CRC_H]
-[Data Block 2 (16 bytes)][CRC_L][CRC_H]
 ...
 [Final Block (≤16 bytes)][CRC_L][CRC_H]
 ```
@@ -396,6 +385,10 @@ Bits 5-0: Sequence number (0-63)
 Request:  [App Control][Function Code][Object Headers...]
 Response: [App Control][Function Code][IIN1][IIN2][Object Headers...]
 ```
+
+## Contributing
+
+We welcome contributions! Please see our [issue templates](.github/ISSUE_TEMPLATE/) for reporting bugs or requesting features.
 
 ## License
 

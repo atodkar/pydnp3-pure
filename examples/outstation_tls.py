@@ -10,18 +10,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from pydnp3.app.constants import CommandStatus
-from pydnp3.io.tcp_server import TcpServer
-from pydnp3.io.tls import TlsConfig, create_tls_context
-from pydnp3.link.layer import LinkLayer
-from pydnp3.link.frame import LinkFrame
-from pydnp3.transport.layer import TransportLayer
-from pydnp3.app.layer import ApplicationLayer
-from pydnp3.objects.types import CROB
-from pydnp3.outstation.config import OutstationConfig
-from pydnp3.outstation.database import PointDatabase
-from pydnp3.outstation.handler import IOutstationHandler
-from pydnp3.outstation.session import OutstationSession
+from pydnp3_pure.app.constants import CommandStatus
+from pydnp3_pure.io.tcp_server import TcpServer
+from pydnp3_pure.io.tls import TlsConfig, create_tls_context
+from pydnp3_pure.link.layer import LinkLayer
+from pydnp3_pure.link.frame import LinkFrame
+from pydnp3_pure.transport.layer import TransportLayer
+from pydnp3_pure.app.layer import ApplicationLayer
+from pydnp3_pure.objects.types import CROB
+from pydnp3_pure.outstation.config import OutstationConfig
+from pydnp3_pure.outstation.database import PointDatabase
+from pydnp3_pure.outstation.handler import IOutstationHandler
+from pydnp3_pure.outstation.session import OutstationSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [OS] %(message)s")
 log = logging.getLogger("outstation_tls")

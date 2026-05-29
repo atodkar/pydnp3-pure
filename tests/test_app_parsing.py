@@ -1,9 +1,9 @@
 """Tests for DNP3 Application Layer parsing."""
 
-from pydnp3.app.constants import FunctionCode, Qualifier
-from pydnp3.app.fragment import ObjectData, build_request, build_response, parse_fragment
-from pydnp3.app.header import IIN
-from pydnp3.app.object_header import ObjectHeader
+from pydnp3_pure.app.constants import FunctionCode, Qualifier
+from pydnp3_pure.app.fragment import ObjectData, build_request, build_response, parse_fragment
+from pydnp3_pure.app.header import IIN
+from pydnp3_pure.app.object_header import ObjectHeader
 
 
 class TestParseFragment:

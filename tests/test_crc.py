@@ -1,6 +1,6 @@
 """Tests for DNP3 CRC-16 implementation."""
 
-from pydnp3.link.crc import append_crc, compute_crc, verify_crc
+from pydnp3_pure.link.crc import append_crc, compute_crc, verify_crc
 
 
 class TestComputeCRC:
