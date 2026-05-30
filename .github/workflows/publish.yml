@@ -9,6 +9,16 @@ permissions:
   contents: read
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug release info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Is prerelease: ${{ github.event.release.prerelease }}"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+          echo "GITHUB_REF: $GITHUB_REF"
+
   validate:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && !github.event.release.prerelease
