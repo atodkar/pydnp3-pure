@@ -66,6 +66,29 @@ class MasterSession:
         data = build_request(FunctionCode.READ, seq=self._next_seq(), objects=[obj])
         self._send(data)
 
+    def send_analog_input_scan(
+        self,
+        start: int,
+        stop: int,
+        variation: int = 5,
+    ) -> None:
+        """Send an explicit Analog Input read (Group 30) for a point range."""
+        if stop < start:
+            raise ValueError("stop index must be >= start index")
+
+        obj = ObjectData(
+            header=ObjectHeader(
+                group=30,
+                variation=variation,
+                qualifier=Qualifier.RANGE_16_START_STOP,
+                start=start,
+                stop=stop,
+                count=stop - start + 1,
+            )
+        )
+        data = build_request(FunctionCode.READ, seq=self._next_seq(), objects=[obj])
+        self._send(data)
+
     # --- Commands ---
 
     def send_direct_operate_binary(self, index: int, crob: CROB) -> None:

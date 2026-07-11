@@ -9,10 +9,10 @@ permissions:
   contents: read
 
 jobs:
-  debug:
+  info:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug release info
+      - name: Release info
         run: |
           echo "Event name: ${{ github.event_name }}"
           echo "Is prerelease: ${{ github.event.release.prerelease }}"
