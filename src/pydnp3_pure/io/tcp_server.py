@@ -35,10 +35,16 @@ class TcpServer(IChannel):
         self._running = False
         self._read_task: asyncio.Task[None] | None = None
         self._connected_event = asyncio.Event()
+        self._connection_id = 0
 
     @property
     def is_open(self) -> bool:
         return self._writer is not None and not self._writer.is_closing()
+
+    @property
+    def connection_id(self) -> int:
+        """Monotonic id for the currently active client session."""
+        return self._connection_id
 
     def set_receive_callback(self, callback: Callable[[bytes], None]) -> None:
         self._receive_callback = callback
@@ -93,6 +99,7 @@ class TcpServer(IChannel):
 
         self._reader = reader
         self._writer = writer
+        self._connection_id += 1
         self._connected_event.set()
 
         try:
@@ -103,9 +110,9 @@ class TcpServer(IChannel):
                 if self._receive_callback:
                     self._receive_callback(data)
         except asyncio.CancelledError:
-            pass
-        except Exception as e:
-            logger.error("Client error: %s", e)
+            raise
+        except Exception:
+            logger.exception("Client error")
         finally:
             writer.close()
             if self._writer is writer:
