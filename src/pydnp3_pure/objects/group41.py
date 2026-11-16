@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Object Group 41: Analog Output Command Block."""
 
 from __future__ import annotations

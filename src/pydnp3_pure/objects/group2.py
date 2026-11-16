@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Object Group 2: Binary Input Events."""
 
 from __future__ import annotations

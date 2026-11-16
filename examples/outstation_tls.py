@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Outstation over TLS — listens for master connections with mutual TLS auth.
 
 Run this first, then run master_tls.py in another terminal (or use the combined script).

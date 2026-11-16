@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Channel protocol abstraction for DNP3 communication."""
 
 from __future__ import annotations

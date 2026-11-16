@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Master station handler callback interface."""
 
 from __future__ import annotations

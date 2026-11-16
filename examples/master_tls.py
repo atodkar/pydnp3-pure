@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Master over TLS in redundant listener mode.
 
 Starts two TLS server channels (primary + secondary) that accept outstation

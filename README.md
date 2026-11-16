@@ -1,8 +1,13 @@
+<!--
+SPDX-FileCopyrightText: 2026 Siemens
+SPDX-License-Identifier: MIT
+-->
+
 # pydnp3-pure
 
 [![CI](https://github.com/anandtodkar/pydnp3-pure/actions/workflows/ci.yml/badge.svg)](https://github.com/anandtodkar/pydnp3-pure/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSES/MIT.txt)
 
 Pure Python DNP3 (IEEE 1815) library. No C++ bindings, no native DLLs — just `pip install` and go.
 

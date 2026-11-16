@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Application Layer header dataclasses."""
 
 from __future__ import annotations

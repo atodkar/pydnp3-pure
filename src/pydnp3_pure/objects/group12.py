@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Object Group 12: Binary Output Command (CROB)."""
 
 from __future__ import annotations

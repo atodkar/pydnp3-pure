@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Tests for DNP3 Link Layer state machine."""
 
 from pydnp3_pure.link.constants import PrimaryFunction

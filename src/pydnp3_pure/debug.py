@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Built-in debugging and protocol analysis tools.
 
 Provides human-readable logging of DNP3 traffic and Wireshark-friendly

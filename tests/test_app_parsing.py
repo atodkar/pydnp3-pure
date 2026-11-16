@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Tests for DNP3 Application Layer parsing."""
 
 from pydnp3_pure.app.constants import FunctionCode, Qualifier

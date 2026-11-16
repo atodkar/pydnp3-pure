@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """TLS context builder for DNP3 secure communication."""
 
 from __future__ import annotations

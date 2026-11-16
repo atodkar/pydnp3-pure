@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 data types used across object group handlers."""
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Link Frame: serialization and parsing with CRC block handling."""
 
 from __future__ import annotations

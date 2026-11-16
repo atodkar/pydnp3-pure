@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Tests for DNP3 Link Frame parsing and serialization."""
 
 from pydnp3_pure.link.constants import MIN_LENGTH_FIELD, SYNC_1, SYNC_2, PrimaryFunction

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Built-in mocking utilities for testing DNP3 applications without hardware.
 
 Provides pre-wired master/outstation pairs that communicate in-memory,

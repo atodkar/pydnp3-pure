@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Example: Basic DNP3 master that polls an outstation.
 
 Connects to an outstation, performs integrity polls, and sends controls.

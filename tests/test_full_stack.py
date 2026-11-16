@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Full-stack integration test: bytes → link → transport → app → typed objects."""
 
 import struct

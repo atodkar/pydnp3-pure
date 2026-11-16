@@ -1,0 +1,6 @@
+version = 1
+
+[[annotations]]
+path = [".coverage", "LICENSE"]
+SPDX-FileCopyrightText = "2026 Siemens"
+SPDX-License-Identifier = "MIT"

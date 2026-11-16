@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Tests for DNP3 Transport Layer."""
 
 from pydnp3_pure.transport.constants import MAX_PAYLOAD_PER_SEGMENT, TH_FIN, TH_FIR, TH_SEQ_MASK

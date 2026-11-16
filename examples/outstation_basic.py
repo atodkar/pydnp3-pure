@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Example: Basic DNP3 outstation over TCP.
 
 This outstation has 5 analog inputs, 2 binary outputs, and 1 counter.

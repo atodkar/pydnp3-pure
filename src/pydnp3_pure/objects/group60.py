@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Object Group 60: Class Data Objects (used in read requests)."""
 
 from __future__ import annotations

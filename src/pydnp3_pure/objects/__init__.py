@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Object Group Handlers.
 
 Importing this package triggers registration of all built-in handlers.

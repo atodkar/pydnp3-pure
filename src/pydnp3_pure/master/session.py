@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Master station session - builds and sends requests, processes responses."""
 
 from __future__ import annotations

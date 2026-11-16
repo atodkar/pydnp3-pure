@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Combined TLS test: runs outstation + master in one process over real TLS sockets.
 
 Demonstrates mutual TLS authentication with analog and digital data exchange.

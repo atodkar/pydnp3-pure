@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 [project]
 name = "pydnp3-pure"
 version = "0.1.0"

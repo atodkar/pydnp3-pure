@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Transport Layer fragment segmentation (transmit direction)."""
 
 from __future__ import annotations

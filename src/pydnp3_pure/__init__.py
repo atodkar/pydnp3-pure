@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """pydnp3_pure — Pure Python DNP3 protocol library.
 
 Supports both master and outstation roles over TCP/TLS.

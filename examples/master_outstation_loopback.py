@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Example: In-process master ↔ outstation loopback test.
 
 Demonstrates the full protocol stack without any network by directly

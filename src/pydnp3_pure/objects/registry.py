@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Object group handler registry with decorator-based registration."""
 
 from __future__ import annotations

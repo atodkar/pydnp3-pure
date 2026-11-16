@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """DNP3 Application Layer: connects transport fragments to session logic."""
 
 from __future__ import annotations

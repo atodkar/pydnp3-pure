@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Tests for DNP3 CRC-16 implementation."""
 
 from pydnp3_pure.link.crc import append_crc, compute_crc, verify_crc

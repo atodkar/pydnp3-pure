@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Abstract base class for DNP3 object group handlers."""
 
 from __future__ import annotations

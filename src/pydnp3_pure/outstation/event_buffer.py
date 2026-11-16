@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Event buffer for Class 1/2/3 events."""
 
 from __future__ import annotations

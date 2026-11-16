@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Siemens
+# SPDX-License-Identifier: MIT
+
 """Read and write buffers for binary protocol parsing using struct."""
 
 from __future__ import annotations
